@@ -100,13 +100,13 @@
           <h1>Lista de Projetos</h1>
         </div>
         <div class="actions">
-          <a href="index.html" class="btn btn-ghost">
-            <span>←</span> Voltar
+          <a href="favoritos.html" class="btn btn-primary" id="viewFavoritesBtn">
+            <span>⭐</span> Ver Favoritos
           </a>
-          <button class="btn btn-secondary" id="clearBtn">
+          <button class="btn btn-secondary" onclick="clearFavorites()">
             <span>🗑️</span> Limpar Favoritos
           </button>
-          <button class="btn btn-primary" id="exportBtn" disabled>
+          <button class="btn btn-primary" onclick="exportFavorites()" id="exportBtn" disabled>
             <span>📄</span> Exportar Favoritos (PDF)
           </button>
         </div>
@@ -162,18 +162,17 @@
   </main>
 
   <script>
-    // Estado
-    let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    let allProjects = [];
-
-    // Helpers
-    const $ = (sel) => document.querySelector(sel);
-    const escapeHtml = (text) => {
+    // Funções utilitárias
+    const $ = (s,root=document)=>root.querySelector(s);
+    const $$ = (s,root=document)=>Array.from(root.querySelectorAll(s));
+    
+    function escapeHtml(text) {
       const div = document.createElement('div');
       div.textContent = text ?? '';
       return div.innerHTML;
-    };
-    const formatCurrency = (value, currency = 'BRL') => {
+    }
+    
+    function formatCurrency(value, currency = 'BRL') {
       if (value === null || value === undefined || Number.isNaN(Number(value))) return 'Não informado';
       if (Number(value) === 0) return 'Não informado';
       try {
@@ -181,7 +180,11 @@
       } catch {
         return `${currency} ${Number(value).toLocaleString('pt-BR')}`;
       }
-    };
+    }
+
+    // Variáveis globais
+    let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    let allProjects = [];
 
     // Inicialização
     document.addEventListener('DOMContentLoaded', () => {
@@ -197,23 +200,30 @@
 
       // Ações
       $('#exportBtn').addEventListener('click', exportFavorites);
-      $('#clearBtn').addEventListener('click', clearFavorites);
     }
 
     async function loadProjects() {
       try {
-        // Use a mesma pasta do HTML
-        const response = await fetch('./data/projects_full.json');
+        console.log('Tentando carregar projetos...');
+        const response = await fetch('data/projects_full.json');
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         allProjects = await response.json();
-        populateSectorFilter();
+        console.log('Projetos carregados:', allProjects.length);
+        
         renderProjects(allProjects);
         updateStats();
       } catch (error) {
         console.error('Erro ao carregar projetos:', error);
-        $('#projectsList').innerHTML = `
+        document.getElementById('projectsList').innerHTML = `
           <div class="no-results">
             <h3>Erro ao carregar projetos</h3>
-            <p>Não foi possível carregar a lista de projetos. Verifique o caminho do arquivo e use um servidor local.</p>
+            <p>Não foi possível carregar a lista de projetos. Erro: ${error.message}</p>
+            <p><strong>Dica:</strong> Certifique-se de que está acessando via servidor web (http://localhost), não diretamente pelo arquivo (file://).</p>
           </div>
         `;
       }
@@ -334,12 +344,19 @@
 
     // Estatísticas
     function updateStats(visibleCount = null) {
-      $('#totalProjects').textContent = (allProjects.length).toLocaleString('pt-BR');
-      $('#visibleProjects').textContent = (visibleCount ?? allProjects.length).toLocaleString('pt-BR');
-      $('#favoriteProjects').textContent = favorites.length;
-
-      const exportBtn = $('#exportBtn');
+      document.getElementById('totalProjects').textContent = allProjects.length.toLocaleString('pt-BR');
+      document.getElementById('visibleProjects').textContent = 
+        visibleCount !== null ? visibleCount.toLocaleString('pt-BR') : allProjects.length.toLocaleString('pt-BR');
+      document.getElementById('favoriteProjects').textContent = favorites.length;
+      
+      const exportBtn = document.getElementById('exportBtn');
       exportBtn.disabled = favorites.length === 0;
+      
+      // Atualizar texto do botão de favoritos
+      const viewFavoritesBtn = document.getElementById('viewFavoritesBtn');
+      if (viewFavoritesBtn) {
+        viewFavoritesBtn.innerHTML = `<span>⭐</span> Ver Favoritos (${favorites.length})`;
+      }
     }
 
     // Exportar favoritos (abre uma janela com HTML e chama print -> salvar como PDF)
