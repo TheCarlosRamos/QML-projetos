@@ -16,30 +16,11 @@
       padding: 2rem 0;
       width: 100%;
     }
-    .main {
-      padding: 2rem 0;
-      width: 100%;
-    }
-    .main .header__inner {
-      max-width: none;
-      padding: 0 1rem;
-      width: 100%;
-    }
     .subsetor-header .header__inner {
       max-width: none;
-      margin: 0 auto;
-      padding: 0 1rem;
+      margin: 0;
+      padding: 0;
       width: 100%;
-    }
-    .subsetor-title {
-      font-size: 2.5rem;
-      font-weight: 800;
-      margin-bottom: 1rem;
-    }
-    .subsetor-subtitle {
-      font-size: 1.25rem;
-      opacity: 0.9;
-      margin-bottom: 2rem;
     }
     .stats-container {
       display: flex;
@@ -48,38 +29,11 @@
       margin-bottom: 2rem;
       flex-wrap: wrap;
     }
-    .stats-row {
-      display: flex;
-      gap: 1rem;
-      flex: 1;
-      min-width: 0;
-      flex-direction: column;
-    }
-    .stat-card {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 1.5rem;
-      border-radius: 1rem;
-      text-align: center;
-      flex: 1;
-      min-width: 140px;
-      margin-bottom: 1rem;
-    }
-    .stat-value {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-    .stat-label {
-      font-size: 0.875rem;
-      opacity: 0.8;
-    }
     .etapas-stats {
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 2rem;
+      padding: 2.5rem;
       border-radius: 1rem;
       flex: 1;
       min-width: 300px;
@@ -87,30 +41,43 @@
       flex-direction: column;
     }
     .etapas-stats h3 {
-      font-size: 1.5rem;
-      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
       text-align: center;
     }
     .etapas-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 1rem;
+      gap: 1.5rem;
       flex: 1;
     }
     .etapa-stat {
       background: rgba(255, 255, 255, 0.15);
-      padding: 1rem;
+      padding: 1.5rem;
       border-radius: 0.75rem;
       text-align: center;
     }
     .etapa-stat-value {
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       font-weight: 700;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
     }
     .etapa-stat-label {
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       opacity: 0.8;
+    }
+    .folhas-container {
+      margin-top: 0;
+    }
+    .folha-section {
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .folha-section .header__inner {
+      max-width: none;
+      margin: 0;
+      padding: 0 2rem;
+      width: 100%;
     }
     .section-title {
       font-size: 1.75rem;
@@ -492,24 +459,28 @@
       </div>`;
     }
 
-    // Template simplificado para resumo com altura garantida
+    // Template simplificado para resumo - apenas nome e timeline com favorito
     function cardTemplate(p){ 
       const nome = p.nome_completo || p.nome_projeto || 'Projeto';
-      const setor = p.setor || '';
-      const subsetor = p.subsetor || '';
+      const isFavorite = favorites.includes(p.guid);
       
-      return `<article class="card" style="padding: 1rem; min-height: 200px; display: flex; flex-direction: column;">
-        <div style="flex: 0 0 auto; margin-bottom: 0.75rem;">
-          <p style="color: #6b7280; font-size: 11px; margin: 0 0 3px 0; line-height: 1.2;">${esc(setor)} • ${esc(subsetor)}</p>
-          <h3 style="color: #1f2937; font-size: 14px; margin: 0; font-weight: 700; line-height: 1.3;">${esc(nome)}</h3>
+      return `<article class="card" style="padding: 0.8rem; min-height: 120px; display: flex; flex-direction: column; position: relative;">
+        <div style="flex: 0 0 auto; margin-bottom: 0.5rem;">
+          <h3 style="color: #1f2937; font-size: 16px; margin: 0; font-weight: 700; line-height: 1.3;">${esc(nome)}</h3>
         </div>
 
         <div style="flex: 1 1 auto; display: flex; flex-direction: column; justify-content: flex-end;">
-          <h4 style="font-size: 12px; margin-bottom: 0.5rem; color: #374151;">ETAPA</h4>
-          <div style="transform: scale(0.85); transform-origin: top left; margin-left: -5px;">
+          <div style="transform: scale(0.75); transform-origin: top left; margin-left: -8px;">
             ${timelineHTML(p)}
           </div>
         </div>
+        
+        <!-- Botão de favorito na parte inferior -->
+        <button onclick="toggleFavorite('${p.guid}')" style="position: absolute; bottom: 0.5rem; right: 0.5rem; background: ${isFavorite ? '#fbbf24' : 'rgba(255,255,255,0.2)'}; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="${isFavorite ? '#fff' : '#fff'}" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+        </button>
       </article>`;
     }
 
@@ -525,9 +496,9 @@
     // Cards por página dinâmico baseado na largura da tela
     function getCardsPerPage() {
       const width = window.innerWidth;
-      if (width >= 1600) return 12; // 3 colunas × 4 linhas
-      if (width >= 1200) return 12; // 3 colunas × 4 linhas  
-      return 9; // Auto-fit com 400px mínimo (aprox. 3 colunas × 3 linhas)
+      if (width >= 1600) return 18; // 3 colunas × 6 linhas
+      if (width >= 1200) return 18; // 3 colunas × 6 linhas  
+      return 15; // Auto-fit com 400px mínimo (aprox. 3 colunas × 5 linhas)
     }
     
     let CARDS_PER_PAGE = getCardsPerPage();
@@ -597,75 +568,89 @@
       // Filtrar projetos do subsetor
       const subsetorProjects = allProjects.filter(p => p.subsetor === currentSubsetor);
       
-      // Resetar página atual dos projetos
-      currentProjectsPage = 0;
-      
-      // Calcular estatísticas
-      const stats = calculateStats(subsetorProjects);
-      
-      // Gerar HTML das estatísticas por etapa
-      const etapasStatsHtml = Object.entries(stats.etapasStats).map(([etapa, count]) => `
+      // Calcular estatísticas do subsetor completo (mesmo para todas as folhas)
+      const subsetorStats = calculateStats(subsetorProjects);
+      const subsetorEtapasStatsHtml = Object.entries(subsetorStats.etapasStats).map(([etapa, count]) => `
         <div class="etapa-stat">
           <div class="etapa-stat-value">${count}</div>
           <div class="etapa-stat-label">${etapa}</div>
         </div>
       `).join('');
       
-      // Renderizar projetos gerais paginados
-      const projectsHtml = renderProjectsGrid(subsetorProjects, currentProjectsPage);
+      // Calcular número de folhas (slides)
+      const totalFolhas = Math.ceil(subsetorProjects.length / CARDS_PER_PAGE);
       
-      content.innerHTML = `
-        <header class="subsetor-header">
-          <div class="header__inner">
-            <h1 class="subsetor-title">${esc(currentSubsetor)}</h1>
-            <p class="subsetor-subtitle">Resumo geral e projetos deste subsetor</p>
-            
-            <div class="stats-container">
-              <div class="stats-row">
-                <div class="stat-card">
-                  <div class="stat-value">${stats.total}</div>
-                  <div class="stat-label">Total de Projetos</div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-value">${stats.favorites}</div>
-                  <div class="stat-label">Favoritados</div>
-                </div>
-              </div>
-              <div class="stats-row">
-                <div class="stat-card">
-                  <div class="stat-value">${stats.completed}</div>
-                  <div class="stat-label">Concluídos</div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-value">${stats.inProgress}</div>
-                  <div class="stat-label">Em Andamento</div>
-                </div>
-              </div>
-
-              <div class="etapas-stats">
-                <h3>Projetos por Etapa</h3>
-                <div class="etapas-grid">
-                  ${etapasStatsHtml}
-                </div>
+      // Gerar HTML de todas as folhas azuis
+      const folhasHtml = [];
+      for (let folhaIndex = 0; folhaIndex < totalFolhas; folhaIndex++) {
+        const startIndex = folhaIndex * CARDS_PER_PAGE;
+        const endIndex = Math.min(startIndex + CARDS_PER_PAGE, subsetorProjects.length);
+        const folhaProjects = subsetorProjects.slice(startIndex, endIndex);
+        
+        const projectsHtml = renderProjectsGrid(folhaProjects, 0); // Sem paginação individual
+        
+        // Todas as folhas usam as mesmas estatísticas do subsetor completo
+        const statsSection = `
+          <div class="stats-container" style="margin-bottom: 1.5rem;">
+            <div class="etapas-stats">
+              <h3>Projetos por Etapa</h3>
+              <div class="etapas-grid">
+                ${subsetorEtapasStatsHtml}
               </div>
             </div>
           </div>
-        </header>
-
-        <main class="main">
-          <div class="header__inner">
-            <section id="grid" class="cards" aria-live="polite">
-              ${projectsHtml}
-            </section>
-          </div>
-        </main>
+        `;
         
-        ${subsetorProjects.length > CARDS_PER_PAGE ? `
-          <div style="text-align: center; padding: 2rem 0; background: #f8fafc; border-top: 1px solid #e5e7eb;">
-            <button class="modal-nav-btn" id="projectsPrevBtn" onclick="changeProjectsPage(-1)" disabled>← Anterior</button>
-            <button class="modal-nav-btn" id="projectsNextBtn" onclick="changeProjectsPage(1)">Próximo →</button>
+        folhasHtml.push(`
+          <div class="folha-section" style="background: linear-gradient(135deg, #1e40af 0%, #3730a3 100%); color: white; padding: 2rem 0; margin-bottom: 1rem; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <div class="header__inner">
+              <div style="display: flex; gap: 2rem; align-items: flex-start;">
+                ${statsSection}
+                <section class="cards" aria-live="polite" style="flex: 1;">
+                  ${projectsHtml}
+                </section>
+              </div>
+            </div>
           </div>
-        ` : ''}
+        `);
+      }
+      
+      // Adicionar folha de favoritos se houver projetos favoritados neste subsetor
+      const subsetorFavorites = subsetorProjects.filter(p => favorites.includes(p.guid));
+      if (subsetorFavorites.length > 0) {
+        const favoritesHtml = renderProjectsGrid(subsetorFavorites, 0);
+        
+        folhasHtml.push(`
+          <div class="folha-section" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 2rem 0; margin-bottom: 1rem; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <div class="header__inner">
+              <div style="display: flex; gap: 2rem; align-items: flex-start;">
+                <div class="stats-container" style="margin-bottom: 1.5rem;">
+                  <div class="etapas-stats">
+                    <h3>Projetos Favoritados</h3>
+                    <div class="etapas-grid">
+                      <div class="etapa-stat">
+                        <div class="etapa-stat-value">${subsetorFavorites.length}</div>
+                        <div class="etapa-stat-label">Favoritos</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <section class="cards" aria-live="polite" style="flex: 1;">
+                  ${favoritesHtml}
+                </section>
+              </div>
+            </div>
+          </div>
+        `);
+      }
+      
+      content.innerHTML = `
+        <div class="document-container">
+          <!-- Folhas azuis com projetos e estatísticas ao lado -->
+          <div class="folhas-container">
+            ${folhasHtml.join('')}
+          </div>
+        </div>
       `;
       
       // Cards simplificados não precisam de inicialização de mapas
@@ -748,109 +733,19 @@
       </div>`;
     }
 
-    function changeProjectsPage(direction) {
-      console.log('changeProjectsPage called with direction:', direction);
-      console.log('currentProjectsPage:', currentProjectsPage);
-      
-      const subsetorProjects = allProjects.filter(p => p.subsetor === currentSubsetor);
-      const totalPages = Math.ceil(subsectorProjects.length / CARDS_PER_PAGE);
-      const newPage = currentProjectsPage + direction;
-      
-      console.log('subsetorProjects.length:', subsetorProjects.length);
-      console.log('CARDS_PER_PAGE:', CARDS_PER_PAGE);
-      console.log('totalPages:', totalPages);
-      console.log('newPage:', newPage);
-      
-      if (newPage >= 0 && newPage < totalPages) {
-        currentProjectsPage = newPage;
-        console.log('Page changed to:', currentProjectsPage);
-        
-        // Atualizar apenas a seção dos projetos
-        const projectsContainer = document.querySelector('#grid');
-        if (projectsContainer) {
-          projectsContainer.innerHTML = renderProjectsGrid(subsetorProjects, currentProjectsPage);
-          console.log('Projects container updated');
-        } else {
-          console.error('Projects container not found');
-        }
-        
-        // Atualizar botões imediatamente
-        const endIndex = (currentProjectsPage + 1) * CARDS_PER_PAGE;
-        const prevBtn = document.getElementById('projectsPrevBtn');
-        const nextBtn = document.getElementById('projectsNextBtn');
-        
-        console.log('Buttons found:', !!prevBtn, !!nextBtn);
-        console.log('Should disable prev:', currentProjectsPage === 0);
-        console.log('Should disable next:', endIndex >= subsetorProjects.length);
-        
-        if (prevBtn) {
-          prevBtn.disabled = currentProjectsPage === 0;
-          console.log('Prev button disabled:', prevBtn.disabled);
-        }
-        if (nextBtn) {
-          nextBtn.disabled = endIndex >= subsetorProjects.length;
-          console.log('Next button disabled:', nextBtn.disabled);
-        }
+    // Função para alternar favoritos
+    function toggleFavorite(guid) {
+      const index = favorites.indexOf(guid);
+      if (index > -1) {
+        favorites.splice(index, 1);
       } else {
-        console.log('Page change not allowed');
+        favorites.push(guid);
       }
-    }
-
-    // Funções do Modal
-    function openModal(type) {
-      if (type !== 'favoritos') {
-        alert('Apenas projetos favoritados podem ser visualizados em modal.');
-        return;
-      }
+      localStorage.setItem('favorites', JSON.stringify(favorites));
       
-      const subsetorProjects = allProjects.filter(p => p.subsetor === currentSubsetor);
-      modalProjects = subsetorProjects.filter(p => favorites.includes(p.guid));
-      currentModalPage = 0;
-      
-      if (modalProjects.length === 0) {
-        alert('Nenhum projeto favoritado para exibir no modal.');
-        return;
-      }
-      
-      updateModalContent();
-      document.getElementById('cardsModal').style.display = 'block';
-    }
-
-    function closeModal() {
-      document.getElementById('cardsModal').style.display = 'none';
-    }
-
-    function updateModalContent() {
-      const startIndex = currentModalPage * CARDS_PER_PAGE;
-      const endIndex = Math.min(startIndex + CARDS_PER_PAGE, modalProjects.length);
-      const currentPageProjects = modalProjects.slice(startIndex, endIndex);
-      
-      // Atualizar título e informações
-      const modalTitle = document.getElementById('modalTitle');
-      modalTitle.textContent = `Projetos - ${currentSubsetor} (Página ${currentModalPage + 1})`;
-      
-      const modalInfo = document.getElementById('modalInfo');
-      modalInfo.textContent = `Mostrando projetos ${startIndex + 1}-${endIndex} de ${modalProjects.length}`;
-      
-      // Renderizar cards em grade 3x5
-      const cardsContainer = document.getElementById('modalCardsContainer');
-      cardsContainer.innerHTML = currentPageProjects.map(project => cardTemplate(project)).join('');
-      
-      // Atualizar botões de navegação
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-      
-      prevBtn.disabled = currentModalPage === 0;
-      nextBtn.disabled = endIndex >= modalProjects.length;
-    }
-
-    function changeModalPage(direction) {
-      const totalPages = Math.ceil(modalProjects.length / CARDS_PER_PAGE);
-      const newPage = currentModalPage + direction;
-      
-      if (newPage >= 0 && newPage < totalPages) {
-        currentModalPage = newPage;
-        updateModalContent();
+      // Recarregar o conteúdo para atualizar os botões
+      if (currentSubsetor) {
+        renderSubsetorContent();
       }
     }
 
@@ -861,32 +756,6 @@
         closeModal();
       }
     }
-    
-    // Garantir que os botões de navegação funcionem
-    document.addEventListener('DOMContentLoaded', function() {
-      setTimeout(() => {
-        const prevBtn = document.getElementById('projectsPrevBtn');
-        const nextBtn = document.getElementById('projectsNextBtn');
-        
-        console.log('Botões encontrados:', !!prevBtn, !!nextBtn);
-        
-        // Adicionar event listeners como backup
-        if (prevBtn) {
-          prevBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Botão Anterior clicado via listener');
-            changeProjectsPage(-1);
-          });
-        }
-        if (nextBtn) {
-          nextBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Botão Próximo clicado via listener');
-            changeProjectsPage(1);
-          });
-        }
-      }, 1000);
-    });
 
     // Inicializar mini-mapas
     function initMiniMaps() {
