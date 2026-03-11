@@ -397,9 +397,66 @@
     const $$ = (s,root=document)=>Array.from(root.querySelectorAll(s));
     
     function esc(text){
-      const div=document.createElement('div');
-      div.textContent=text||'';
+      const div = document.createElement('div');
+      div.textContent = text;
       return div.innerHTML;
+    }
+
+    // Dicionário de traduções
+    const translations = {
+      // Subsetores
+      'Highway': 'Rodovia',
+      'Seaport': 'Porto Marítimo',
+      'Intercity Rail': 'Ferrovia Intercidades',
+      'School': 'Escola',
+      'Solid Waste Facility': 'Instalação de Resíduos Sólidos',
+      'Street Lighting': 'Iluminação Pública',
+      'Other Water & Waste': 'Outros Água e Resíduos',
+      'Other Energy': 'Outra Energia',
+      'Other': 'Outros',
+      
+      // Subsetores adicionais que faltavam
+      'Airport': 'Aeroporto',
+      'Hospital': 'Hospital',
+      'Housing': 'Habitação',
+      'Irrigation': 'Irrigação',
+      'Metro': 'Metrô',
+      'Other Transport': 'Outro Transporte',
+      'Prison': 'Penitenciária',
+      'Tourist Facility': 'Instalação Turística',
+      'Transmission Line': 'Linha de Transmissão',
+      'Waste Water Treatment': 'Tratamento de Águas Residuais',
+      'Water Supply Infrastructure': 'Infraestrutura de Abastecimento de Água',
+      
+      // Setores
+      'Transport': 'Transporte',
+      'Social Infrastructure': 'Infraestrutura Social',
+      'Water & Waste': 'Água e Resíduos',
+      'Urban Services': 'Serviços Urbanos',
+      'Energy': 'Energia',
+      
+      // Outros termos
+      'Completed': 'Concluído',
+      'In Progress': 'Em Andamento',
+      'Not Started': 'Não Iniciado',
+      'Pending': 'Pendente',
+      'Active': 'Ativo',
+      'Inactive': 'Inativo',
+      
+      // Status e situações que podem aparecer
+      'Em execução': 'Em execução',
+      'Concluído': 'Concluído',
+      'Paralisado': 'Paralisado',
+      'Em andamento': 'Em andamento',
+      'Planejado': 'Planejado',
+      'Cancelado': 'Cancelado',
+      'Suspenso': 'Suspenso'
+    };
+
+    // Função de tradução
+    function translate(text) {
+      if (!text) return text;
+      return translations[text] || text;
     }
     
     function resumirDescricao(texto, maxCaracteres = 300) {
@@ -544,6 +601,8 @@
         
         // Extrair subsetores únicos
         subsetores = [...new Set(allProjects.map(p => p.subsetor).filter(Boolean))].sort();
+        console.log('Subsetores encontrados:', subsetores);
+        console.log('Subsetores traduzidos:', subsetores.map(s => translate(s)));
         
       } catch (error) {
         console.error('Erro ao carregar projetos:', error);
@@ -558,9 +617,11 @@
       subsetores.forEach(subsetor => {
         const option = document.createElement('option');
         option.value = subsetor;
-        option.textContent = subsetor;
+        option.textContent = translate(subsetor); // Aplicar tradução
         selector.appendChild(option);
       });
+      
+      selector.addEventListener('change', changeSubsetor);
     }
 
     function changeSubsetor() {
@@ -586,7 +647,7 @@
       const subsetorEtapasStatsHtml = Object.entries(subsetorStats.etapasStats).map(([etapa, count]) => `
         <div class="etapa-stat">
           <div class="etapa-stat-value">${count}</div>
-          <div class="etapa-stat-label">${etapa}</div>
+          <div class="etapa-stat-label">${translate(etapa)}</div>
         </div>
       `).join('');
       
@@ -635,7 +696,7 @@
         subsetorFavorites.forEach((project, index) => {
           // Gerar o card completo do projeto (mesmo estilo do projects.html)
           const nome = project.nome_completo || project.nome_projeto || 'Projeto';
-          const setor = project.setor || '';
+          const setor = translate(project.setor || ''); // Aplicar tradução
           
           // Resumir descrição de forma padronizada e clara
           function resumirDescricao(texto) {
@@ -710,7 +771,7 @@
                   <div class="row-2cols">
                     <div class="info-small">
                       <h5>Situação Atual</h5>
-                      <p>${esc(situ)}</p>
+                      <p>${esc(translate(situ))}</p>
                     </div>
 
                     <div class="info-small">
@@ -888,7 +949,7 @@
       
       // Usar exatamente o mesmo template do projects.html
       const nome = project.nome_completo || project.nome_projeto || 'Projeto';
-      const setor = project.setor || '';
+      const setor = translate(project.setor || ''); // Aplicar tradução
       
       // Resumir descrição de forma padronizada e clara
       function resumirDescricao(texto) {
