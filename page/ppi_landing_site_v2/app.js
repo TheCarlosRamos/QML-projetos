@@ -2,6 +2,47 @@
 (function(){
   const $ = (s,root=document)=>root.querySelector(s);
   const $$ = (s,root=document)=>Array.from(root.querySelectorAll(s));
+  
+  // Dicionário de traduções
+  const translations = {
+    // Subsetores
+    'Highway': 'Rodovia',
+    'Seaport': 'Porto Marítimo',
+    'Intercity Rail': 'Ferrovia Intercidades',
+    'School': 'Escola',
+    'Solid Waste Facility': 'Instalação de Resíduos Sólidos',
+    'Street Lighting': 'Iluminação Pública',
+    'Other Water & Waste': 'Outros Água e Resíduos',
+    'Other Energy': 'Outra Energia',
+    'Other': 'Outros',
+    
+    // Subsetores adicionais
+    'Airport': 'Aeroporto',
+    'Hospital': 'Hospital',
+    'Housing': 'Habitação',
+    'Irrigation': 'Irrigação',
+    'Metro': 'Metrô',
+    'Other Transport': 'Outro Transporte',
+    'Prison': 'Penitenciária',
+    'Tourist Facility': 'Instalação Turística',
+    'Transmission Line': 'Linha de Transmissão',
+    'Waste Water Treatment': 'Tratamento de Águas Residuais',
+    'Water Supply Infrastructure': 'Infraestrutura de Abastecimento de Água',
+    
+    // Setores
+    'Transport': 'Transporte',
+    'Social Infrastructure': 'Infraestrutura Social',
+    'Water & Waste': 'Água e Resíduos',
+    'Urban Services': 'Serviços Urbanos',
+    'Energy': 'Energia',
+  };
+
+  // Função de tradução
+  function translate(text) {
+    if (!text) return text;
+    return translations[text] || text;
+  }
+  
   const phaseCols = [
     ['Estudos','status_dos_estudos'],['Consulta Pública','status_consulta_publica'],['TCU','status_do_tcu'],['Edital','status_do_edital'],['Leilão','status_do_leilao'],['Contrato','status_do_contrato']
   ];
@@ -166,9 +207,23 @@
     if(!$('#grid')) return; // not on projects
     const DATA = await (await fetch('data/projects_full.json')).json();
     const sectorSel = $('#sector');
-    const sectors = [...new Set(DATA.map(p=>p.setor).filter(Boolean))].sort(); sectors.forEach(v=>{ const o=document.createElement('option'); o.value=o.textContent=v; sectorSel.appendChild(o); });
+    const sectors = [...new Set(DATA.map(p=>p.setor).filter(Boolean))].sort(); sectors.forEach(v=>{ const o=document.createElement('option'); o.value=o.textContent=translate(v); sectorSel.appendChild(o); });
+    
+    // Adicionar filtro de subsetor
+    const subsetorSel = $('#subsetor');
+    const subsetores = [...new Set(DATA.map(p=>p.subsetor).filter(Boolean))].sort(); 
+    subsetores.forEach(v=>{ 
+      const o=document.createElement('option'); 
+      o.value=v; 
+      o.textContent=translate(v); 
+      subsetorSel.appendChild(o); 
+    });
 
-    const params = new URLSearchParams(location.search); $('#q').value=params.get('q')||''; $('#sector').value=params.get('sector')||''; $('#etapa').value=params.get('etapa')||'';
+    const params = new URLSearchParams(location.search); 
+    $('#q').value=params.get('q')||''; 
+    $('#sector').value=params.get('sector')||''; 
+    $('#subsetor').value=params.get('subsetor')||''; 
+    $('#etapa').value=params.get('etapa')||'';
 
     function cardTemplate(p){ 
     const nome = p.nome_completo || p.nome_projeto || 'Projeto';
@@ -276,9 +331,33 @@
 
     const etapaSel = $('#etapa'); const etapaLabels=['Nenhuma', ...phaseCols.map(p=>p[0])]; etapaLabels.forEach(l=>{ const o=document.createElement('option'); o.value=o.textContent=l; etapaSel.appendChild(o); });
 
-    function apply(){ const q=($('#q').value||'').toLowerCase().trim(); const sector=$('#sector').value||''; const etapa=$('#etapa').value||''; const filtered = DATA.filter(p=>{ const okQ=!q || ((p.nome_completo||'').toLowerCase().includes(q) || (p.descricao_do_projeto||'').toLowerCase().includes(q) || (p.localizacoes||'').toLowerCase().includes(q)); const okS=!sector||(p.setor===sector); let okE=true; if(etapa){ const idx=lastCompletedIdx(p); const lab=idx<0?'Nenhuma':phaseCols[idx][0]; okE=(lab===etapa);} return okQ&&okS&&okE; }); $('#grid').innerHTML = filtered.map(cardTemplate).join(''); $('#count').textContent = String(filtered.length); renderMiniMaps(); }
+    function apply(){ 
+      const q=($('#q').value||'').toLowerCase().trim(); 
+      const sector=$('#sector').value||''; 
+      const subsetor=$('#subsetor').value||''; 
+      const etapa=$('#etapa').value||''; 
+      const filtered = DATA.filter(p=>{ 
+        const okQ=!q || ((p.nome_completo||'').toLowerCase().includes(q) || (p.descricao_do_projeto||'').toLowerCase().includes(q) || (p.localizacoes||'').toLowerCase().includes(q)); 
+        const okS=!sector||(p.setor===sector); 
+        const okSub=!subsetor||(p.subsetor===subsetor); // Novo filtro de subsetor
+        let okE=true; 
+        if(etapa){ 
+          const idx=lastCompletedIdx(p); 
+          const lab=idx<0?'Nenhuma':phaseCols[idx][0]; 
+          okE=(lab===etapa);
+        } 
+        return okQ&&okS&&okSub&&okE; 
+      }); 
+      $('#grid').innerHTML = filtered.map(cardTemplate).join(''); 
+      $('#count').textContent = String(filtered.length); 
+      renderMiniMaps(); 
+    }
 
-    ['q','sector','etapa'].forEach(id=> $('#'+id).addEventListener('input', apply)); $('#clear').addEventListener('click', ()=>{ ['q','sector','etapa'].forEach(id=> $('#'+id).value=''); apply(); });
+    ['q','sector','subsetor','etapa'].forEach(id=> $('#'+id).addEventListener('input', apply)); 
+    $('#clear').addEventListener('click', ()=>{ 
+      ['q','sector','subsetor','etapa'].forEach(id=> $('#'+id).value=''); 
+      apply(); 
+    });
     
     // Conectar o seletor de precisão
     const precisionSel = document.getElementById('precision');
@@ -509,7 +588,25 @@
         // Remove página extra se criada
         if (pdf.getNumberOfPages() > cards.length + 1) pdf.deletePage(pdf.getNumberOfPages());
 
-        pdf.save('projetos.pdf');
+        // Nome do arquivo com filtros aplicados
+        const q = $('#q').value.trim();
+        const sector = $('#sector').value;
+        const subsetor = $('#subsetor').value;
+        const etapa = $('#etapa').value;
+        
+        let filename = 'projetos';
+        const filters = [];
+        if (sector) filters.push(translate(sector));
+        if (subsetor) filters.push(translate(subsetor));
+        if (etapa) filters.push(etapa);
+        if (q) filters.push(`busca_${q.replace(/\s+/g, '_')}`);
+        
+        if (filters.length > 0) {
+          filename += '_' + filters.join('_');
+        }
+        filename += '.pdf';
+
+        pdf.save(filename);
       });
     }
   });
