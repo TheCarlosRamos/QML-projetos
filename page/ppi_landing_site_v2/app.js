@@ -94,7 +94,7 @@
     </div>`;
 }
 
-  function makeBars(container, obj, valueFormatter){ const entries=Object.entries(obj||{}); const total=entries.reduce((a,[_k,v])=>a+(typeof v==='number'?v:0),0); container.innerHTML = entries.sort((a,b)=>b[1]-a[1]).map(([k,v])=>{ const pct = total? (v/total*100).toFixed(1):0; const label=valueFormatter? valueFormatter(k): k; return `<div class="bar"><div class="lbl">${label}</div><div class="track"><div class="fill" style="width:${pct}%"></div></div><div style="width:60px;text-align:right; font-size:12px;">${(typeof v==='number')? v.toLocaleString('pt-BR'): v}</div></div>`; }).join(''); }
+  function makeBars(container, obj, valueFormatter){ const entries=Object.entries(obj||{}); const total=entries.reduce((a,[_k,v])=>a+(typeof v==='number'?v:0),0); container.innerHTML = entries.sort((a,b)=>b[1]-a[1]).map(([k,v])=>{ const pct = total? (v/total*100).toFixed(1):0; const label=valueFormatter? valueFormatter(k): k; return `<div class="bar"><div class="lbl">${label}</div><div class="track"><div class="fill" style="width:${pct}%"></div></div><div style="width:80px;text-align:right; font-size:11px; flex-shrink:0;">${(typeof v==='number')? v.toLocaleString('pt-BR'): v}</div></div>`; }).join(''); }
 
   function createPieChart(canvasId, data, title) {
     const ctx = document.getElementById(canvasId);
@@ -147,16 +147,8 @@
 
   // ----- INDEX (landing) -----
   async function initIndex(){
-    if(!$('#kpi-total')) return; // not on index
-    const METRICS = await (await fetch('data/metrics.json')).json();
-    $('#kpi-total').textContent = METRICS.total_projetos.toLocaleString('pt-BR');
-    $('#kpi-coords').textContent = METRICS.projetos_com_coordenadas.toLocaleString('pt-BR');
-
-    // custos por moeda (KPIs em chips + tabela detalhada)
-    const costs = METRICS.custos_por_moeda||{};
-    const chips = Object.entries(costs).map(([cur, s])=>`<span class="chip"><strong>${cur}</strong> • soma ${fmt(cur,s.soma)} • ${s.projetos_com_custo} proj.</span>`).join('');
-    $('#cost-chips').innerHTML = chips || '<span class="chip">Sem dados de custo</span>';
-    $('#cost-table').innerHTML = tableFromCosts(costs);
+    if(!$('#bars-setor')) return; // not on index
+    const METRICS = await (await fetch('data/metrics.json')).json();// KPIs
 
     // barras por setor (contagem)
     makeBars($('#bars-setor'), METRICS.por_setor||{});
