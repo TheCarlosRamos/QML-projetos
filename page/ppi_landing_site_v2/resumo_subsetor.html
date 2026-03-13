@@ -1535,13 +1535,14 @@
       pdf.text(`Gerado em ${new Date().toLocaleDateString('pt-BR')}`, pageWidth/2, 85, { align: 'center' });
       
       const subsetorProjects = allProjects.filter(p => p.subsetor === currentSubsetor);
+      let filteredProjects = subsetorProjects;
       if (currentSubsecretaria) {
-        subsetorProjects = subsetorProjects.filter(p => p.subsecretaria === currentSubsecretaria);
+        filteredProjects = filteredProjects.filter(p => p.subsecretaria === currentSubsecretaria);
       }
-      const favoriteProjects = subsetorProjects.filter(p => favorites.includes(p.guid));
+      const favoriteProjects = filteredProjects.filter(p => favorites.includes(p.guid));
       
       pdf.setFontSize(12);
-      pdf.text(`Total: ${subsetorProjects.length} projetos | Favoritos: ${favoriteProjects.length}`, pageWidth/2, 105, { align: 'center' });
+      pdf.text(`Total: ${filteredProjects.length} projetos | Favoritos: ${favoriteProjects.length}`, pageWidth/2, 105, { align: 'center' });
       
       // Capturar cada folha individualmente
       const folhas = document.querySelectorAll('.folha-section');
